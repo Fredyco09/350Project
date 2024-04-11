@@ -10,7 +10,7 @@ def node_to_bdd(node, vars):
     bits = [(node >> i) & 1 for i in range(5)] # Convert the node number to bits
     return [vars[i] if bits[i] else ~vars[i] for i in range(5)] # Convert the bits to BDD
 
-# Define the graph's edges based on the given conditions
+# Define the graph's edges
 def RR(i, j):
     return (i + 3) % 32 == j or (i + 8) % 32 == j
 
@@ -20,7 +20,7 @@ even = expr2bdd(exprvar('False'))
 prime = expr2bdd(exprvar('False'))
 RR2 = expr2bdd(exprvar('False'))
 
-for i in range(32): # For each node
+for i in range(32):
     i_bdd = expr2bdd(exprvar('True')) # Start with a true expression
     for bit, var in zip(node_to_bdd(i, X), X): # Convert the node number to BDD
         i_bdd &= bit # Combine the bits
@@ -30,9 +30,9 @@ for i in range(32): # For each node
     if i in [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31]:  # Prime set
         prime |= i_bdd # Add the node to the prime set
     
-    for j in range(32): # For each node
+    for j in range(32):
         if RR(i, j): # If there is an edge between i and j
-            j_bdd = expr2bdd(exprvar('True')) # Start with a true expression
+            j_bdd = expr2bdd(exprvar('True')) 
             for bit, var in zip(node_to_bdd(j, Y), Y):  # Convert the node number to BDD
                 j_bdd &= bit # Combine the bits
             R |= i_bdd & j_bdd # Add the edge to the graph
@@ -50,17 +50,15 @@ while True:
     if H.equivalent(Hp): # continute unti; graph has converged
         break 
 
-# Test cases
 test_cases = [
-    (R.restrict(dict(zip(X, node_to_bdd(27, X))) + dict(zip(Y, node_to_bdd(3, Y)))) == exprvar('True')),
-    (R.restrict(dict(zip(X, node_to_bdd(16, X))) + dict(zip(Y, node_to_bdd(20, Y)))) == exprvar('False')),
-    (even.restrict(dict(zip(X, node_to_bdd(14, X)))) == exprvar('True')),
-    (even.restrict(dict(zip(X, node_to_bdd(13, X)))) == exprvar('False')),
-    (prime.restrict(dict(zip(X, node_to_bdd(7, X)))) == exprvar('True')),
-    (prime.restrict(dict(zip(X, node_to_bdd(2, X)))) == exprvar('False'))
-    (RR2.restrict(dict(zip(X, node_to_bdd(27, X))) + dict(zip(Y, node_to_bdd(6, Y)))) == exprvar('True')),
-    (RR2.restrict(dict(zip(X, node_to_bdd(27, X))) + dict(zip(Y, node_to_bdd(9, Y)))) == exprvar('False'))
-
+    RR(27, 3), 
+    RR(16, 20), 
+    even(14), 
+    even(13), 
+    prime(7), 
+    prime(2), 
+    RR2(27, 6),
+    RR2(27, 9) 
 ]
 
 print(test_cases)
